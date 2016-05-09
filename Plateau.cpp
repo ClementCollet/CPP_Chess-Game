@@ -1,16 +1,17 @@
+
+#include "Plateau.h"
+#include "Piece.h"
 #include <iostream>
 #include <stdlib.h>
 #include <string>
 
-#include "Plateau.h"
-#include "Piece.h"
 
 ////////////////////////////////////////////////////////
 /// \file Plateau.cpp
 /// \brief Classe Plateau Source
-/// \author Clément Collet & Loic Steunou
+/// \author Clï¿½ment Collet & Loic Steunou
 ///
-/// Code Source de la classe Plateau et de ces méthodes
+/// Code Source de la classe Plateau et de ces mï¿½thodes
 ///
 ////////////////////////////////////////////////////////
 
@@ -331,12 +332,12 @@ bool Plateau::tourDeJeu(int indiceJoueur)
 {
     affichage();
     cout<<endl;
+    bool sortie=false;
     cout << "Voulez vous abandonner ? 1 oui ou 0 non "<<endl;
     int rep;
     cin>>rep;
     if (rep==1)
         return true;
-    else rep = false;
     bool ok2 =true;
     bool ok = false;
     bool ok3=false;
@@ -368,11 +369,11 @@ bool Plateau::tourDeJeu(int indiceJoueur)
         }
         if (ok2==true)
         {
-            cout <<"Si vous jouez cela, vous êtes en situation d'echec à la fin de votre tour... "<<endl;
+            cout <<"Si vous jouez cela, vous ï¿½tes en situation d'echec ï¿½ la fin de votre tour... "<<endl;
         }
         if (ok==false)
         {
-            cout <<"Vous ne pouvez pas amenez cette piece à cette endroit."<<endl;
+            cout <<"Vous ne pouvez pas amenez cette piece ï¿½ cette endroit."<<endl;
         }
     }
     deplacement(i,j,ia,ja);
@@ -380,5 +381,36 @@ bool Plateau::tourDeJeu(int indiceJoueur)
     {
         resurection(indiceJoueur,ia,ja);
     }
-    return rep;
+    if (indiceJoueur==1)
+        return echecMat(2);
+    else return echecMat(1);
+}
+
+bool Plateau::echecMat(int indiceJoueur)
+{
+    bool ech=echec(indiceJoueur);
+    int indiceAdversaire;
+    if (indiceJoueur==1)
+        indiceAdversaire=2;
+    else indiceAdversaire=1;
+    Piece* pio;
+    if (ech)
+     {
+        for (int k=0;k<64;k++)
+        {
+            pio=getPiece(k/8,k%8);
+            if (pio->getIndiceJoueur()==indiceJoueur)
+                for (int i=0;i<64;i++)
+                {
+                   if (pio->deplacementPossible(*this,k/8,k%8,i/8,i%8))
+                   {
+                      Plateau temp;
+                      temp.copie(*this);
+                      temp.deplacement(k/8,k%8,i/8,i%8);
+                      ech=ech&&temp.echec(indiceJoueur);
+                      temp.~Plateau();
+                  }
+               }
+        }
+     }
 }
