@@ -147,6 +147,22 @@ Plateau::Plateau(int j)
         Piece* vide=new Piece();
         carte.push_back(vide);
     }
+    Piece* pion=new Piece("Pion",1);
+    setPiece(1,0,pion);
+    Piece* pion3=new Piece("Pion",1);
+    setPiece(1,5,pion3);
+    Piece* roi=new Piece("Roi",1);
+    setPiece(7,4,roi);
+    Piece* roi2=new Piece("Roi",2);
+    setPiece(0,4,roi2);
+    Piece* tour=new Piece("Tour",1);
+    setPiece(3,2,tour);
+    Piece* pion2=new Piece("Pion",2);
+    setPiece(2,3,pion2);
+    Piece* fou=new Piece("Fou",1);
+    setPiece(3,5,fou);
+    Piece* dame=new Piece("Dame",2);
+    setPiece(2,5,dame);
 }
 
 Plateau::~Plateau()
@@ -190,16 +206,41 @@ void Plateau::affichage()
 
 void Plateau::setPiece(int i, int j, Piece* pion)
 {
-    Piece* pio;
-    pio=getPiece(i,j);
-    if (pio->getIndiceJoueur()==1)
-        pieceMorteJ1.push_back(pio);
-    else if (pio->getIndiceJoueur()==2)
-            pieceMorteJ2.push_back(pio);
-        else
-            delete carte.at(i*8+j);
-
     carte.at(i*8+j)=pion;
+}
+
+void Plateau::affichePiecesMortes(int indiceJoueur)
+{
+    if (indiceJoueur==1)
+        for(int k=0; k<pieceMorteJ1.size(); k++)
+            cout<<"En "<<k<<", il y a un(e) "<<pieceMorteJ1.at(k)->getType()<<endl;
+    else if (indiceJoueur==2)
+        for(int k=0; k<pieceMorteJ2.size(); k++)
+            cout<<"En "<<k<<", il y a un(e) "<<pieceMorteJ2.at(k)->getType()<<endl;
+}
+
+void Plateau::resurection(int indiceJoueur,int i,int j)
+{
+    if (indiceJoueur==1)
+    {
+        cout<<"Voici la liste de vos pieces mortes"<<endl;
+        affichePiecesMortes(1);
+        cout<<"Quelle piece voulez vous sauver ?"<<endl;
+        int rep;
+        cin>>rep;
+        setPiece(i,j,pieceMorteJ1.at(rep));
+        pieceMorteJ1.erase(pieceMorteJ1.begin()+rep);
+    }
+    else if (indiceJoueur==2)
+    {
+        cout<<"Voici la liste de vos pieces mortes"<<endl;
+        affichePiecesMortes(2);
+        cout<<"Quelle piece voulez vous sauver ?"<<endl;
+        int rep;
+        cin>>rep;
+        setPiece(i,j,pieceMorteJ2.at(i));
+        pieceMorteJ2.erase(pieceMorteJ2.begin()+i);
+    }
 }
 
 Piece* Plateau::getPiece(int i, int j)
@@ -221,6 +262,11 @@ void Plateau::deplacement (int ia, int ja, int iap, int jap)
 {
     Piece* nouv=new Piece();
     Piece* temp=getPiece(ia,ja);
+    Piece* old=getPiece(iap,jap);
+    if (old->getIndiceJoueur()==1)
+        pieceMorteJ1.push_back(old);
+    else if (old->getIndiceJoueur()==2)
+        pieceMorteJ2.push_back(old);
     setPiece(iap,jap,temp);
     setPiece(ia,ja,nouv);
 }
@@ -248,7 +294,10 @@ bool Plateau::echec(int indiceJoueur)
             pio=carte.at(i);
             if (pio->getIndiceJoueur()==2)
                 if (pio->deplacementPossible(*this,i/8,i%8,cible/8,cible%8))
+                {
                     a=true;
+                    cout<<"Le ou la "<<pio->getType()<<" en i="<<i/8<<" j="<<i%8<<" met en echec le roi en i="<<cible/8<<" j="<<cible%8<<endl;
+                }
         }
     }
     else if (indiceJoueur==2)
@@ -268,7 +317,10 @@ bool Plateau::echec(int indiceJoueur)
             pio=carte.at(i);
             if (pio->getIndiceJoueur()==1)
                 if (pio->deplacementPossible(*this,i/8,i%8,cible/8,cible%8))
+                {
                     a=true;
+                    cout<<"Le ou la "<<pio->getType()<<" en i="<<i/8<<" j="<<i%8<<" met en echec le roi en i="<<cible/8<<" j="<<cible%8<<endl;
+                }
         }
 
     }
@@ -284,17 +336,15 @@ bool Plateau::tourDeJeu(int indiceJoueur)
     cin>>rep;
     if (rep==1)
         return true;
-
+    else rep = false;
     bool ok2 =true;
     bool ok = false;
     bool ok3=false;
     int i,j;
     int ia,ja;
     Piece* pio;
-    bool pasBon=false;
     while ((ok2==true) || (ok==false)||(ok3==false))
     {
-        if (pasBon) cout<<"Votre coup est innacceptable"<<endl;
         cout<<"Quelle est la position de la piece que vous voulez deplacer ?"<<endl;
 
         cin>>i;
@@ -307,17 +357,28 @@ bool Plateau::tourDeJeu(int indiceJoueur)
 
         pio=getPiece(i,j);
         ok3=(pio->getIndiceJoueur()==indiceJoueur);
-        cout<<"1 si piece vous appartient, 0 sinon ---->"<<ok3<<endl;
         ok = pio->deplacementPossible(*this,i,j,ia,ja);
-        cout<<"1 si deplacement possible, 0 sinon ---->"<<ok<<endl;
         Plateau temp;
         temp.copie(*this);
         temp.deplacement(i,j,ia,ja);
         ok2=temp.echec(indiceJoueur);
-        cout<<"1 si auto mise en echec, 0 sinon ----> "<<ok2<<endl;
-        if ((ok2==true) || (ok==false)||(ok3==false))
-            pasBon=true;
+        if (ok3==false)
+        {
+            cout <<"Vous etes joueur "<<indiceJoueur<<" et vous essayer de deplacer une piece du joueur "<<pio->getIndiceJoueur()<<endl;
+        }
+        if (ok2==true)
+        {
+            cout <<"Si vous jouez cela, vous êtes en situation d'echec à la fin de votre tour... "<<endl;
+        }
+        if (ok==false)
+        {
+            cout <<"Vous ne pouvez pas amenez cette piece à cette endroit."<<endl;
+        }
     }
     deplacement(i,j,ia,ja);
-    cout<<" " <<endl;
+    if ((pio->getType()=="Pion")&&((ia==0)||(ia==7)))
+    {
+        resurection(indiceJoueur,ia,ja);
+    }
+    return rep;
 }
