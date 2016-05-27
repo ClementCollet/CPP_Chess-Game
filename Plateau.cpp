@@ -1,4 +1,3 @@
-
 #include "Plateau.h"
 #include "Piece.h"
 #include <iostream>
@@ -148,22 +147,21 @@ Plateau::Plateau(int j)
         Piece* vide=new Piece();
         carte.push_back(vide);
     }
-    Piece* pion=new Piece("Pion",1);
-    setPiece(1,0,pion);
-    Piece* pion3=new Piece("Pion",1);
-    setPiece(1,5,pion3);
-    Piece* roi=new Piece("Roi",1);
-    setPiece(7,4,roi);
-    Piece* roi2=new Piece("Roi",2);
-    setPiece(0,4,roi2);
-    Piece* tour=new Piece("Tour",1);
-    setPiece(3,2,tour);
-    Piece* pion2=new Piece("Pion",2);
-    setPiece(2,3,pion2);
-    Piece* fou=new Piece("Fou",1);
-    setPiece(3,5,fou);
-    Piece* dame=new Piece("Dame",2);
-    setPiece(2,5,dame);
+    Piece* roi=new Piece("Roi",2);
+    setPiece(0,0,roi);
+    Piece* roi2=new Piece("Roi",1);
+    setPiece(3,2,roi2);
+    Piece* dame=new Piece("Dame",1);
+    setPiece(7,1,dame);
+}
+
+void Plateau::berger()
+{
+    deplacement(6,4,4,4);
+    deplacement(1,4,3,4);
+    deplacement(7,5,4,2);
+    deplacement(0,5,3,2);
+    deplacement(7,3,3,7);
 }
 
 Plateau::~Plateau()
@@ -178,7 +176,7 @@ void Plateau::affichage()
     cout<<"   ";
     for( int j =0; j<8; j++)
     {
-        cout<<j<<"   ";
+        cout<<j<<"    ";
     }
     cout<<endl;
     for (int i=0; i<8; i++)
@@ -192,12 +190,15 @@ void Plateau::affichage()
             if (piece=="Tour") lettre='T';
             else if (piece=="Dame") lettre='D';
             else if (piece=="Pion") lettre='P';
-            else if (piece=="Vide") lettre='X';
+            else if (piece=="Vide") lettre=' ';
             else if (piece=="Roi") lettre='R';
             else if (piece=="Fou") lettre='F';
             else if (piece=="Cavalier") lettre='C';
-            cout<<lettre<<" ";
-
+            //cout<<"\E[31;1m"<<lettre<<"\E[m";
+            //cout<<lettre << coucou clemzy;
+            if(carte.at(i*8+j)->getIndiceJoueur()!=0)
+                cout<<carte.at(i*8+j)->getIndiceJoueur()<<" ";
+            else cout<<"  ";
             cout<< "| ";
 
         }
@@ -328,16 +329,84 @@ bool Plateau::echec(int indiceJoueur)
     return a;
 }
 
+bool Plateau::echec2(int indiceJoueur)
+{
+
+    bool a=false;
+    Piece* pio;
+    int cible;
+    if (indiceJoueur==1)
+    {
+        for (int i=0; i<64; i++)
+        {
+            pio=carte.at(i);
+            if (pio->getType()=="Roi")
+                if (pio->getIndiceJoueur()==1)
+                {
+                    cible=i;
+                    break;
+                }
+        }
+        for (int i=0; i<64; i++)
+        {
+            pio=carte.at(i);
+            if (pio->getIndiceJoueur()==2)
+                if (pio->deplacementPossible(*this,i/8,i%8,cible/8,cible%8))
+                {
+                    a=true;
+                }
+        }
+    }
+    else if (indiceJoueur==2)
+    {
+        for (int i=0; i<64; i++)
+        {
+            pio=carte.at(i);
+            if (pio->getType()=="Roi")
+                if (pio->getIndiceJoueur()==2)
+                {
+                    cible=i;
+                    break;
+                }
+        }
+        for (int i=0; i<64; i++)
+        {
+            pio=carte.at(i);
+            if (pio->getIndiceJoueur()==1)
+                if (pio->deplacementPossible(*this,i/8,i%8,cible/8,cible%8))
+                {
+                    a=true;
+                }
+        }
+
+    }
+    return a;
+}
+
 bool Plateau::tourDeJeu(int indiceJoueur)
 {
-    affichage();
     cout<<endl;
+    affichage();
+    bool pate=pat(indiceJoueur);
+    if (pate)
+    {
+         return true;
+    }
+    cout<<endl;
+    if (echec(indiceJoueur))    cout<<"Attention, vous etes en situation d'echec !!"<<endl;
     bool sortie=false;
-    cout << "Voulez vous abandonner ? 1 oui ou 0 non "<<endl;
-    int rep;
-    cin>>rep;
-    if (rep==1)
+    cout << "Voulez vous jouer votre coup (1), un coup de main sur les coups qui vous sont possibles(2) ou abandonne (3)? "<<endl;
+     int rep;
+     cin>>rep;
+     if (rep==3)
+     {
+         cout<<"Le joueur "<<indiceJoueur<<" a perdu !"<<endl;
         return true;
+    }
+    if (rep==2)
+    {
+        aide(indiceJoueur);
+    }
     bool ok2 =true;
     bool ok = false;
     bool ok3=false;
@@ -355,6 +424,7 @@ bool Plateau::tourDeJeu(int indiceJoueur)
 
         cin>>ia;
         cin>>ja;
+        cout<<endl;
 
         pio=getPiece(i,j);
         ok3=(pio->getIndiceJoueur()==indiceJoueur);
@@ -369,11 +439,11 @@ bool Plateau::tourDeJeu(int indiceJoueur)
         }
         if (ok2==true)
         {
-            cout <<"Si vous jouez cela, vous �tes en situation d'echec � la fin de votre tour... "<<endl;
+            cout <<"Si vous jouez cela, vous etes en situation d'echec a la fin de votre tour... "<<endl;
         }
         if (ok==false)
         {
-            cout <<"Vous ne pouvez pas amenez cette piece � cette endroit."<<endl;
+            cout <<"Vous ne pouvez pas amenez cette piece a cette endroit."<<endl;
         }
     }
     deplacement(i,j,ia,ja);
@@ -388,29 +458,93 @@ bool Plateau::tourDeJeu(int indiceJoueur)
 
 bool Plateau::echecMat(int indiceJoueur)
 {
-    bool ech=echec(indiceJoueur);
+    bool ech=echec2(indiceJoueur);
     int indiceAdversaire;
     if (indiceJoueur==1)
         indiceAdversaire=2;
     else indiceAdversaire=1;
     Piece* pio;
     if (ech)
-     {
-        for (int k=0;k<64;k++)
+    {
+        for (int k=0; k<64; k++)
         {
             pio=getPiece(k/8,k%8);
             if (pio->getIndiceJoueur()==indiceJoueur)
-                for (int i=0;i<64;i++)
+                for (int i=0; i<64; i++)
                 {
-                   if (pio->deplacementPossible(*this,k/8,k%8,i/8,i%8))
-                   {
-                      Plateau temp;
-                      temp.copie(*this);
-                      temp.deplacement(k/8,k%8,i/8,i%8);
-                      ech=ech&&temp.echec(indiceJoueur);
-                      temp.~Plateau();
-                  }
-               }
+                    if (pio->deplacementPossible(*this,k/8,k%8,i/8,i%8))
+                    {
+                        //cout <<"deplacement possible du "<<pio->getType()<<" en "<<k/8<<" et "<<k%8<<" vers "<<i/8<<" et "<<i%8 <<endl;
+                        Plateau temp;
+                        temp.copie(*this);
+                        temp.deplacement(k/8,k%8,i/8,i%8);
+                        ech=ech&&temp.echec2(indiceJoueur);
+                        temp.~Plateau();
+                    }
+                }
         }
-     }
+    }
+    if (ech) cout<<"ECHEC ET MAT ! Le joueur "<<indiceJoueur<<" a perdu !"<<endl;
+    return ech;
+}
+
+void Plateau::aide(int indiceJoueur)
+{
+    bool ech;
+    int indiceAdversaire;
+    if (indiceJoueur==1)
+        indiceAdversaire=2;
+    else indiceAdversaire=1;
+    Piece* pio;
+    for (int k=0; k<64; k++)
+    {
+        pio=getPiece(k/8,k%8);
+        if (pio->getIndiceJoueur()==indiceJoueur)
+            for (int i=0; i<64; i++)
+            {
+                if (pio->deplacementPossible(*this,k/8,k%8,i/8,i%8))
+                {
+                    Plateau temp;
+                    temp.copie(*this);
+                    temp.deplacement(k/8,k%8,i/8,i%8);
+                    ech=temp.echec(indiceJoueur);
+                    temp.~Plateau();
+                    if (ech==false)
+                    {
+                        cout <<"deplacement possible du "<<pio->getType()<<" en "<<k/8<<" et "<<k%8<<" vers "<<i/8<<" et "<<i%8 <<endl;
+                    }
+                }
+            }
+    }
+}
+
+bool Plateau::pat(int indiceJoueur)
+{
+    bool ech=echec2(indiceJoueur);
+    if (ech)
+        return false;
+    bool sortie=true;
+    Piece* pio;
+    for (int k=0; k<64; k++)
+    {
+        pio=getPiece(k/8,k%8);
+        if (pio->getIndiceJoueur()==indiceJoueur)
+            for (int i=0; i<64; i++)
+            {
+                if (pio->deplacementPossible(*this,k/8,k%8,i/8,i%8))
+                {
+                    Plateau temp;
+                    temp.copie(*this);
+                    temp.deplacement(k/8,k%8,i/8,i%8);
+                    ech=temp.echec2(indiceJoueur);
+                    temp.~Plateau();
+                    if (ech==false)
+                    {
+                        return false;
+                    }
+                }
+            }
+    }
+    cout<<"Il y a un situation de pat, match nul !"<<endl;
+    return true;
 }

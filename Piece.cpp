@@ -67,14 +67,14 @@ bool Piece::deplacementPossible(Plateau plat,int ia,int ja,int iAp,int jAp)
 
         if (indiceJoueur==2)
         {
-            deplacement1=((ja==jAp)&&((iAp-ia)==1)); // coup normal
-            deplacement2=((ja==jAp)&&((iAp-ia)==2)&&(ia==1)); // coup double du début
+            deplacement1=((ja==jAp)&&((iAp-ia)==1)&&(plat.getPiece(iAp,jAp)->getIndiceJoueur()==0)); // coup normal
+            deplacement2=((ja==jAp)&&(iAp==3)&&(ia==1)&&(plat.getPiece(2,jAp)->getIndiceJoueur()==0)&&(plat.getPiece(iAp,jAp)->getIndiceJoueur()==0)); // coup double du début
             deplacement3=((abs(ja-jAp)==1)&&((iAp-ia)==1) && (plat.getPiece(iAp,jAp)->getIndiceJoueur()==1)); // deplacement diag + pièce mangée
         }
         else
         {
-            deplacement1=((ja==jAp)&&((ia-iAp)==1)); // coup normal
-            deplacement2=((ja==jAp)&&((ia-iAp)==2)&&(ia==6)); // coup double du début
+            deplacement1=((ja==jAp)&&((ia-iAp)==1)&&(plat.getPiece(iAp,jAp)->getIndiceJoueur()==0)); // coup normal
+            deplacement2=((ja==jAp)&&(iAp==4)&&(ia==6)&&(plat.getPiece(5,jAp)->getIndiceJoueur()==0)&&(plat.getPiece(iAp,jAp)->getIndiceJoueur()==0)); // coup double du début
             deplacement3=((abs(ja-jAp)==1)&&((ia-iAp)==1) && (plat.getPiece(iAp,jAp)->getIndiceJoueur()==2)); // deplacement diag + pièce mangée
         }
         if (deplacement1 || deplacement2 || deplacement3)
@@ -184,7 +184,7 @@ bool Piece::deplacementPossible(Plateau plat,int ia,int ja,int iAp,int jAp)
         if ((memeLigne==false)&&(memeColonne==false))
             return false;
         bool b=false;
-        int dep=abs(jAp-ja);
+        int dep=abs(jAp-ja)+abs(iAp-ia);
 
         if ((ia==iAp)&&(ja<jAp))
             for (int i=1; i<dep; i++)
@@ -218,15 +218,12 @@ bool Piece::deplacementPossible(Plateau plat,int ia,int ja,int iAp,int jAp)
         bool copain = (plat.getPiece(iAp,jAp)->getIndiceJoueur()==indiceJoueur);
         if (copain)
             return false;
-        bool memediag = (((ia+ja)%2)==((iAp+jAp)%2));
-        if (memediag==false)
+        bool memeColonne = (ja==jAp);
+        bool memeLigne = (ia==iAp);
+        if ((memeLigne==true)||(memeColonne==true))
         {
-            bool memeColonne = (ja==jAp);
-            bool memeLigne = (ia==iAp);
-            if ((memeLigne==false)&&(memeColonne==false))
-                return false;
             bool b=false;
-            int dep=abs(jAp-ja);
+            int dep=abs(jAp-ja)+abs(iAp-ia);
 
             if ((ia==iAp)&&(ja<jAp))
                 for (int i=1; i<dep; i++)
@@ -254,6 +251,9 @@ bool Piece::deplacementPossible(Plateau plat,int ia,int ja,int iAp,int jAp)
         }
         else
         {
+            bool memediag = (((ia+ja)%2)==((iAp+jAp)%2));
+            if (memediag==false)
+                return false;
             bool dist=(abs(ia-iAp)==abs(ja-jAp));
             if (dist==false)
                 return false;
@@ -284,7 +284,6 @@ bool Piece::deplacementPossible(Plateau plat,int ia,int ja,int iAp,int jAp)
                 return false;
             a=true;
         }
-
     }
     return a;
 }
