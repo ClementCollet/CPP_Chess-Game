@@ -194,8 +194,7 @@ void Plateau::affichage()
             else if (piece=="Roi") lettre='R';
             else if (piece=="Fou") lettre='F';
             else if (piece=="Cavalier") lettre='C';
-            //cout<<"\E[31;1m"<<lettre<<"\E[m";
-            //cout<<lettre << coucou clemzy;
+            cout<<lettre;
             if(carte.at(i*8+j)->getIndiceJoueur()!=0)
                 cout<<carte.at(i*8+j)->getIndiceJoueur()<<" ";
             else cout<<"  ";
@@ -203,6 +202,7 @@ void Plateau::affichage()
 
         }
         cout <<" "<<endl;
+        cout<<"   ---------------------------------------"<<endl;
     }
 }
 
@@ -390,6 +390,7 @@ bool Plateau::tourDeJeu(int indiceJoueur)
     bool pate=pat(indiceJoueur);
     if (pate)
     {
+        cout<<"Il y a un pat"<<endl;
          return true;
     }
     cout<<endl;
@@ -443,7 +444,7 @@ bool Plateau::tourDeJeu(int indiceJoueur)
         }
         if (ok==false)
         {
-            cout <<"Vous ne pouvez pas amenez cette piece a cette endroit."<<endl;
+            cout <<"Vous ne pouvez pas amener cette piece a cette endroit."<<endl;
         }
     }
     deplacement(i,j,ia,ja);

@@ -23,7 +23,7 @@ class Plateau
 {
 public:
     Plateau();                                               // Constructeur du Plateau qui l'initialise tel qu'il doit l'�tre en debut de partie
-    Plateau(int i);                                          // Constructeur d'un Plateau rempli de pi�ce "Vide"
+    Plateau(int i);                                          // Constructeur d'un Plateau rempli de piece "Vide"
     virtual ~Plateau();                                      // Destructeur de Plateau
     void berger();
 
@@ -42,9 +42,10 @@ public:
 
     void affichePiecesMortes(int indiceJoueur);              // Affiche les pieces mortes du joueur indiceJoueur
     void affichage();                                        // Affiche la carte
+    void affichage(int i);
 
 private:
-    std::vector<Piece*> carte;                               // C'est la carte, compos�e de pointeurs sur les pi�ces
+    std::vector<Piece*> carte;                               // C'est la carte, composee de pointeurs sur les pi�ces
     std::vector<Piece*> pieceMorteJ1;                        // Liste des pieces mortes du joueur 1
     std::vector<Piece*> pieceMorteJ2;                        // Liste des pieces mortes du joueur 2
 };
