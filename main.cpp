@@ -17,6 +17,7 @@ using namespace std;
 int main()
 {
     Plateau* board=new Plateau();
+    board->berger();
     bool a=false;
     int i=1;
     //board->berger();
@@ -27,5 +28,5 @@ int main()
         if (i==1) i=2;
         else if (i==2) i=1;
     }
-    return 0;
+    return 1;
 }
