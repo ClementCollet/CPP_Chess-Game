@@ -12,7 +12,7 @@
 ///
 ////////////////////////////////////////////////////////
 
-Piece::Piece()
+Piece::Piece() // Constructeur
 {
     indiceJoueur=0;
     type="Vide";
