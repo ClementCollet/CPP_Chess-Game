@@ -15,7 +15,7 @@
 ////////////////////////////////////////////////////////
 
 
-Plateau::Plateau()
+Plateau::Plateau() // Constructeur
 {
     carte.clear();
     pieceMorteJ1.clear();
